@@ -3,17 +3,19 @@ import { serve } from "https://deno.land/std@0.138.0/http/server.ts";
 import { ConnectConfig, SendConfig, SmtpClient } from "./smtp.ts"
 
 interface mailBody {
-    tls: boolean;
+    ntls?: boolean;
     connect: ConnectConfig;
     mail: SendConfig;
 }
+
+const port = +Deno.env.get('PORT')!;
 
 export async function handler(req: Request) {
     try {
         const body = (await req.json()) as mailBody;
         const client = new SmtpClient();
-        if (body.tls) await client.connectTLS(body.connect);
-        else await client.connect(body.connect);
+        if (body.ntls) await client.connect(body.connect);
+        else await client.connectTLS(body.connect);
         await client.send(body.mail);
         client.close();
         return new Response(undefined, { status: Status.OK });
@@ -23,4 +25,4 @@ export async function handler(req: Request) {
     }
 }
 
-if (import.meta.main) await serve(handler, { port: 80 });
+if (import.meta.main) await serve(handler, { port });

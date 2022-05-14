@@ -1,6 +1,23 @@
 import { SmtpClient, parseAddress } from "./smtp.ts";
 import { assertEquals } from "https://deno.land/std@0.138.0/testing/asserts.ts";
 
+export const testData = {
+    "ntls": true,
+    "connect": {
+        "hostname": "smtp.gmail.com",
+        "port": 465,
+        "username": "contact@peoplemart.io",
+        "password": ""
+    },
+    "mail": {
+        "from": "PeopleMartDAO <contact@peoplemart.io>",
+        "to": "sovar.he@gmail.com",
+        "subject": "Deno Smtp build Success",
+        "content": "plain text email",
+        "html": "<p>hello world</p>"
+    }
+}
+
 Deno.test("parse adresses (MAIL FROM, RCPT TO and DATA commands)", () => {
     const [e1, e2] = parseAddress("Deno Land <root@deno.land>");
     assertEquals([e1, e2], ["<root@deno.land>", "Deno Land <root@deno.land>"]);
@@ -16,7 +33,7 @@ Deno.test('Send Mail', async () => {
         hostname: 'smtp.gmail.com',
         port: 465,
         username: 'contact@peoplemart.io',
-        password: 'PeopleMart@2022!',
+        password: Deno.env.get('EMAIL_PASSWORD'),
     };
     if (tls) {
         await client.connectTLS(config);

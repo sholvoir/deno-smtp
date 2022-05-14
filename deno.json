@@ -1,0 +1,6 @@
+{
+    "tasks": {
+        "build": "deno bundle server.ts dest/server.js && docker build -t gcr.io/seventh-azimuth-346103/mail:latest .",
+        "push": "docker push gcr.io/seventh-azimuth-346103/mail"
+    }
+}
