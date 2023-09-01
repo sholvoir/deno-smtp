@@ -1,5 +1,3 @@
-import { TextLineStream } from "std/streams/text_line_stream.ts";
-
 export interface ConnectConfig {
     hostname: string;
     port?: number;
@@ -35,8 +33,7 @@ export class SmtpClient {
 
     async connect(config: ConnectConfig) {
         this.#conn = await Deno.connectTls({hostname: config.hostname, port: config.port ?? 465});
-        this.#reader = this.#conn.readable.pipeThrough(new TextDecoderStream())
-            .pipeThrough(new TextLineStream({ allowCR: true })).getReader();
+        this.#reader = this.#conn.readable.pipeThrough(new TextDecoderStream()).getReader();
         this.#writer = this.#conn.writable.getWriter();
 
         await this.#writeReadAssert(undefined, CommandCode.READY);
@@ -48,11 +45,7 @@ export class SmtpClient {
 
     async close() {
         await this.#writeReadAssert('QUIT', CommandCode.BYE);
-        while (true) {
-            const r = await this.#reader?.read();
-            if (r?.done) break;
-        }
-        await this.#reader?.cancel()
+        while (true) if ((await this.#reader?.read())?.done) break;
         await this.#writer?.close();
     }
 
@@ -72,7 +65,7 @@ export class SmtpClient {
         await this.#writeReadAssert("MIME-Version: 1.0");
         await this.#writeReadAssert("Content-Type: text/html;charset=utf-8\r\n");
         await this.#writeReadAssert(config.content);
-        await this.#writeReadAssert("\r\n.", CommandCode.OK);
+        await this.#writeReadAssert(".", CommandCode.OK);
     }
 
     #parseAddress(email: string): [string, string] {
@@ -89,16 +82,13 @@ export class SmtpClient {
         }
         if (assert) {
             if (!this.#reader) throw new Error('Not Ready!');
-            while (true) {
-                const result = await this.#reader.read();
-                const line = result.value! as string;
-                if (!line) throw new Error(`invalid cmd`);
-                console.log(`--S: ${line}`);
-                if (line.at(3) === '-') continue;
-                const code = parseInt(line.slice(0, 3).trim());
-                if (code != assert) throw new Error(`expect code: ${assert}, but get code: ${code}`);
-                break;
-            }
+            const result = await this.#reader.read();
+            const truck = result.value?.trim();
+            if (!truck) throw new Error(`invalid cmd`);
+            const lines = truck.split('\r\n');
+            if (this.console_debug) for (const l of lines )console.log(`--S: ${l}`);
+            const code = parseInt(lines.at(-1)!.slice(0, 3).trim());
+            if (code != assert) throw new Error(`expect code: ${assert}, but get code: ${code}`);
         }
     }
 }
