@@ -1,53 +1,21 @@
-import { SmtpClient, parseAddress } from "./smtp.ts";
-import { assertEquals } from "https://deno.land/std@0.138.0/testing/asserts.ts";
-
-export const testData = {
-    "ntls": true,
-    "connect": {
-        "hostname": "smtp.gmail.com",
-        "port": 465,
-        "username": "contact@peoplemart.io",
-        "password": ""
-    },
-    "mail": {
-        "from": "PeopleMartDAO <contact@peoplemart.io>",
-        "to": "sovar.he@gmail.com",
-        "subject": "Deno Smtp build Success",
-        "content": "plain text email",
-        "html": "<p>hello world</p>"
-    }
-}
-
-Deno.test("parse adresses (MAIL FROM, RCPT TO and DATA commands)", () => {
-    const [e1, e2] = parseAddress("Deno Land <root@deno.land>");
-    assertEquals([e1, e2], ["<root@deno.land>", "Deno Land <root@deno.land>"]);
-
-    const [e3, e4] = parseAddress("root@deno.land");
-    assertEquals([e3, e4], ["<root@deno.land>", "<root@deno.land>"]);
-});
+import "std/dotenv/load.ts";
+import { SmtpClient } from "./smtp.ts";
 
 Deno.test('Send Mail', async () => {
-    const tls = true;
-    const client = new SmtpClient();
+    const client = new SmtpClient(true);
     const config = {
-        hostname: 'smtp.gmail.com',
-        port: 465,
-        username: 'contact@peoplemart.io',
-        password: Deno.env.get('EMAIL_PASSWORD'),
+        hostname: Deno.env.get('MAIL_SERVER')!,
+        port: +(Deno.env.get('MAIL_PORT') ?? 465),
+        username: Deno.env.get('MAIL_USER')!,
+        password: Deno.env.get('MAIL_PASS')!,
     };
-    if (tls) {
-        await client.connectTLS(config);
-    } else {
-        await client.connect(config);
-    }
+    await client.connect(config);
 
     await client.send({
-        from: 'PeopleMartDAO <contact@peoplemart.io>',
-        to: 'sovar.he@gmail.com',
-        subject: "Deno Smtp build Success" + Math.random() * 1000,
-        content: "plain text email",
-        html: `
-  <!DOCTYPE html>
+        from: config.username,
+        to: Deno.env.get('MAIL_TO_USER')!,
+        subject: `Deno Smtp build Success ${Date.now()}`,
+        content: `<!DOCTYPE html>
       <html lang="en">
         <head>
           <meta charset="UTF-8" />
@@ -60,9 +28,8 @@ Deno.test('Send Mail', async () => {
           <p>Build succeed!</p>
           <p>${new Date()}</p>
         </body>
-      </html>
-  `,
+      </html>`,
     });
 
-    client.close();
+    await client.close();
 });
