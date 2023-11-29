@@ -14,6 +14,8 @@ export interface SendConfig {
 }
 
 const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
 enum CommandCode {
     READY = 220,
     BYE = 221,
@@ -26,14 +28,14 @@ enum CommandCode {
 
 export class SmtpClient {
     #conn: Deno.Conn | undefined;
-    #reader: ReadableStreamDefaultReader<string> | undefined;
+    #reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
     #writer: WritableStreamDefaultWriter<Uint8Array> | undefined;
 
     constructor(private console_debug = false) {}
 
     async connect(config: ConnectConfig) {
         this.#conn = await Deno.connectTls({hostname: config.hostname, port: config.port ?? 465});
-        this.#reader = this.#conn.readable.pipeThrough(new TextDecoderStream()).getReader();
+        this.#reader = this.#conn.readable.getReader();
         this.#writer = this.#conn.writable.getWriter();
 
         await this.#writeReadAssert(undefined, CommandCode.READY);
@@ -45,7 +47,6 @@ export class SmtpClient {
 
     async close() {
         await this.#writeReadAssert('QUIT', CommandCode.BYE);
-        while (true) if ((await this.#reader?.read())?.done) break;
         await this.#writer?.close();
     }
 
@@ -83,7 +84,7 @@ export class SmtpClient {
         if (assert) {
             if (!this.#reader) throw new Error('Not Ready!');
             const result = await this.#reader.read();
-            const truck = result.value?.trim();
+            const truck = decoder.decode(result.value).trim();
             if (!truck) throw new Error(`invalid cmd`);
             const lines = truck.split('\r\n');
             if (this.console_debug) for (const l of lines )console.log(`--S: ${l}`);

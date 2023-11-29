@@ -1,4 +1,3 @@
-import "std/dotenv/load.ts";
 import { SmtpClient } from "./smtp.ts";
 
 Deno.test('Send Mail', async () => {
