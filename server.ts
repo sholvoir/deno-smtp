@@ -1,18 +1,23 @@
-import { ConnectConfig, SendConfig, SmtpClient } from "./smtp.ts"
+import { verifyToken } from "./jwt.ts";
+import { SmtpClient, type Config, type Mail } from "./smtp.ts"
 
-interface mailBody {
-    connect: ConnectConfig;
-    mail: SendConfig;
-}
+const config: Config = {
+    hostname: Deno.env.get('MAIL_SERVER')!,
+    mailPort: +(Deno.env.get('MAIL_PORT') ?? 465),
+    username: Deno.env.get('MAIL_USER')!,
+    password: Deno.env.get('MAIL_PASS')!,
+};
 
 const port = +(Deno.env.get('PORT') ?? 80);
 
 export async function handler(req: Request) {
     try {
-        const body = (await req.json()) as mailBody;
+        const token = req.headers.get('Authorization')?.match(/Bearer (.*)/)?.at(1);
+        if (!token || !await verifyToken(token)) return new Response(undefined, { status: 401 });
+        const mail = (await req.json()) as Mail;
         const client = new SmtpClient();
-        await client.connect(body.connect);
-        await client.send(body.mail);
+        await client.connect(config);
+        await client.send(mail);
         await client.close();
         return new Response(undefined, { status: 200 });
     } catch (e) {

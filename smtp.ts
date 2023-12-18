@@ -1,11 +1,11 @@
-export interface ConnectConfig {
+export interface Config {
     hostname: string;
-    port?: number;
+    mailPort: number;
     username: string;
     password: string;
 }
 
-export interface SendConfig {
+export interface Mail {
     to: string;
     from: string;
     date?: string;
@@ -33,8 +33,8 @@ export class SmtpClient {
 
     constructor(private console_debug = false) {}
 
-    async connect(config: ConnectConfig) {
-        this.#conn = await Deno.connectTls({hostname: config.hostname, port: config.port ?? 465});
+    async connect(config: Config) {
+        this.#conn = await Deno.connectTls({hostname: config.hostname, port: config.mailPort});
         this.#reader = this.#conn.readable.getReader();
         this.#writer = this.#conn.writable.getWriter();
 
@@ -50,22 +50,22 @@ export class SmtpClient {
         await this.#writer?.close();
     }
 
-    async send(config: SendConfig) {
-        const [from, fromData] = this.#parseAddress(config.from);
-        const [to, toData] = this.#parseAddress(config.to);
-        const date = config.date ?? new Date().toString();
+    async send(mail: Mail) {
+        const [from, fromData] = this.#parseAddress(mail.from);
+        const [to, toData] = this.#parseAddress(mail.to);
+        const date = mail.date ?? new Date().toString();
 
         await this.#writeReadAssert(`MAIL FROM: ${from}`, CommandCode.OK);
         await this.#writeReadAssert(`RCPT TO: ${to}`, CommandCode.OK);
         await this.#writeReadAssert("DATA", CommandCode.BEGIN_DATA);
 
-        await this.#writeReadAssert(`Subject: ${config.subject}`);
+        await this.#writeReadAssert(`Subject: ${mail.subject}`);
         await this.#writeReadAssert(`From: ${fromData}`);
         await this.#writeReadAssert(`To: ${toData}`);
         await this.#writeReadAssert(`Date: ${date}`);
         await this.#writeReadAssert("MIME-Version: 1.0");
         await this.#writeReadAssert("Content-Type: text/html;charset=utf-8\r\n");
-        await this.#writeReadAssert(config.content);
+        await this.#writeReadAssert(mail.content);
         await this.#writeReadAssert(".", CommandCode.OK);
     }
 
