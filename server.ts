@@ -1,7 +1,8 @@
-import { JWT } from "sholvoir/jwt.ts";
+import { JWT } from "generic-ts/jwt.ts";
 import { SmtpClient, type Config, type Mail } from "./smtp.ts"
 
-const jwt = await new JWT().importKey(Deno.env.get('APP_KEY')!);
+const jwt = new JWT({ iss: 'sholvoir.com', sub: 'mail' })
+await jwt.importKey(Deno.env.get('APP_KEY'));
 
 const config: Config = {
     hostname: Deno.env.get('MAIL_SERVER')!,

@@ -2,7 +2,7 @@
     "lock": false,
     "imports": {
         "$std/": "https://deno.land/std@0.209.0/",
-        "sholvoir/": "https://www.sholvoir.com/generic/"
+        "generic-ts/": "https://raw.githubusercontent.com/sholvoir/generic-ts/main/"
     },
     "tasks": {
         "start": "PORT=8090 deno run -A --env server.ts"
