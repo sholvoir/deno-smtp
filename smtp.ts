@@ -1,17 +1,5 @@
-export interface Config {
-    hostname: string;
-    mailPort: number;
-    username: string;
-    password: string;
-}
-
-export interface Mail {
-    to: string;
-    from: string;
-    date?: string;
-    subject: string;
-    content: string;
-}
+import { IConfig } from "./iconfig.ts";
+import { IMail } from "./imail.ts";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -33,7 +21,7 @@ export class SmtpClient {
 
     constructor(private console_debug = false) {}
 
-    async connect(config: Config) {
+    async connect(config: IConfig) {
         this.#conn = await Deno.connectTls({hostname: config.hostname, port: config.mailPort});
         this.#reader = this.#conn.readable.getReader();
         this.#writer = this.#conn.writable.getWriter();
@@ -50,7 +38,7 @@ export class SmtpClient {
         await this.#writer?.close();
     }
 
-    async send(mail: Mail) {
+    async send(mail: IMail) {
         const [from, fromData] = this.#parseAddress(mail.from);
         const [to, toData] = this.#parseAddress(mail.to);
         const date = mail.date ?? new Date().toString();

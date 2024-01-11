@@ -1,10 +1,12 @@
 import { JWT } from "generic-ts/jwt.ts";
-import { SmtpClient, type Config, type Mail } from "./smtp.ts"
+import { IConfig } from "./iconfig.ts";
+import { IMail } from "./imail.ts";
+import { SmtpClient } from "./smtp.ts"
 
 const jwt = new JWT({ iss: 'sholvoir.com', sub: 'mail' })
 await jwt.importKey(Deno.env.get('APP_KEY'));
 
-const config: Config = {
+const config: IConfig = {
     hostname: Deno.env.get('MAIL_SERVER')!,
     mailPort: +(Deno.env.get('MAIL_PORT') ?? 465),
     username: Deno.env.get('MAIL_USER')!,
@@ -17,7 +19,7 @@ export async function handler(req: Request) {
     try {
         const token = req.headers.get('Authorization')?.match(/Bearer (.*)/)?.at(1);
         if (!token || !await jwt.verifyToken(token)) return new Response(undefined, { status: 401 });
-        const mail = await req.json() as Mail;
+        const mail = await req.json() as IMail;
         const client = new SmtpClient();
         await client.connect(config);
         await client.send(mail);
