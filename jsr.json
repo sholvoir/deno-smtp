@@ -1,0 +1,8 @@
+{
+    "name": "deno-smtp",
+    "version": "0.9.6",
+    "exports": {
+        "./smtp": "./smtp.ts",
+        "./server": "./server.ts"
+    }
+}
