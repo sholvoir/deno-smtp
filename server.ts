@@ -15,7 +15,7 @@ const config: IConfig = {
 
 const port = +(Deno.env.get('PORT') ?? 80);
 
-export async function handler(req: Request) {
+export async function handler(req: Request): Promise<Response> {
     try {
         const token = req.headers.get('Authorization')?.match(/Bearer (.*)/)?.at(1);
         if (!token || !await jwt.verifyToken(token)) return new Response(undefined, { status: 401 });
