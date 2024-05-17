@@ -58,7 +58,7 @@ export class SmtpClient {
     }
 
     #parseAddress(email: string): [string, string] {
-        const m = email.toString().match(/(.*)\s<(.*)>/);
+        const m = email.toString().match(/(.*)\s*<(.*)>/);
         return m?.length === 3 ? [`<${m[2]}>`, email] : [`<${email}>`, `<${email}>`];
     }
 
@@ -75,7 +75,7 @@ export class SmtpClient {
             const truck = decoder.decode(result.value).trim();
             if (!truck) throw new Error(`invalid cmd`);
             const lines = truck.split('\r\n');
-            if (this.console_debug) for (const l of lines )console.log(`--S: ${l}`);
+            if (this.console_debug) for (const l of lines ) console.log(`--S: ${l}`);
             const code = parseInt(lines.at(-1)!.slice(0, 3).trim());
             if (code != assert) throw new Error(`expect code: ${assert}, but get code: ${code}`);
         }
