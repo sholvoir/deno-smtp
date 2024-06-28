@@ -1,9 +1,9 @@
-import { JWT } from "generic-ts/jwt.ts";
-import { IConfig } from "./iconfig.ts";
-import { IMail } from "./imail.ts";
-import { SmtpClient } from "./smtp.ts"
+import { JWT } from "@sholvoir/jwt";
+import type { IConfig } from "./iconfig.ts";
+import type { IMail } from "./imail.ts";
+import { SmtpClient } from "./smtp.ts";
 
-const jwt = new JWT({ iss: 'sholvoir.com', sub: 'mail' })
+const jwt = new JWT({ iss: 'micit.co', sub: 'mail' });
 await jwt.importKey(Deno.env.get('APP_KEY'));
 
 const config: IConfig = {

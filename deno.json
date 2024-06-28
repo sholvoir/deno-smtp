@@ -1,9 +1,9 @@
 {
     "name": "@sholvoir/deno-smtp",
-    "version": "0.9.6",
+    "version": "0.9.7",
     "lock": false,
     "imports": {
-        "generic-ts/": "https://raw.githubusercontent.com/sholvoir/generic-ts/main/"
+        "@sholvoir/jwt": "jsr:@sholvoir/jwt@0.0.1"
     },
     "tasks": {
         "start": "PORT=8090 deno run -A --env server.ts",
