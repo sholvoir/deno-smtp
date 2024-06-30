@@ -1,6 +1,6 @@
 {
     "name": "@sholvoir/deno-smtp",
-    "version": "0.9.7",
+    "version": "0.9.8",
     "lock": false,
     "imports": {
         "@sholvoir/jwt": "jsr:@sholvoir/jwt@0.0.1"
@@ -10,6 +10,7 @@
         "deploy": "deno run -A deploy.ts"
     },
     "exports": {
+        "./": "./mod.ts",
         "./smtp": "./smtp.ts",
         "./server": "./server.ts"
     }

@@ -1,5 +1,5 @@
-import { IConfig } from "./iconfig.ts";
-import { IMail } from "./imail.ts";
+import type { IConfig } from "./iconfig.ts";
+import type { IMail } from "./imail.ts";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
