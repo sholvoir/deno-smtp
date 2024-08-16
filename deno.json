@@ -1,17 +1,17 @@
 {
     "name": "@sholvoir/deno-smtp",
-    "version": "0.9.8",
+    "version": "0.9.9",
     "lock": false,
     "imports": {
-        "@sholvoir/jwt": "jsr:@sholvoir/jwt@0.0.1"
+        "@sholvoir/generic": "jsr:@sholvoir/generic@^0.0.8"
     },
     "tasks": {
         "start": "PORT=8090 deno run -A --env server.ts",
         "deploy": "deno run -A deploy.ts"
     },
     "exports": {
-        "./": "./mod.ts",
-        "./smtp": "./smtp.ts",
-        "./server": "./server.ts"
+        ".": "./src/mod.ts",
+        "./smtp": "./src/smtp.ts",
+        "./server": "./src/server.ts"
     }
 }

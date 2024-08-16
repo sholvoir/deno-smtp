@@ -1,4 +1,4 @@
-import { JWT } from "@sholvoir/jwt";
+import { JWT } from "@sholvoir/generic/jwt";
 import type { IConfig } from "./iconfig.ts";
 import type { IMail } from "./imail.ts";
 import { SmtpClient } from "./smtp.ts";
